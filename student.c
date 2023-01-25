@@ -76,7 +76,10 @@ struct grade* student_find_grade(
 
 void student_take(struct student* s, struct course* c, uint8_t grade)
 {
-    if (student_find_grade(s, c->code)) {
+    struct grade* g = student_find_grade(s, c->code);
+    if (g) {
+        // TESTCASE: most recent grade is recorded.
+        g->grade = grade;
         return;
     }
     grades_array_add(s, grade_new(c, grade));
@@ -135,8 +138,11 @@ static void student_average_of_passed(
         }
     }
 
-    TEST_AND_SET(out_average_passed_ratio, sum_score_passed / sum_score_full_passed);
-    TEST_AND_SET(out_average_all_ratio, sum_score_all / sum_score_full_all);
+    // TESTCASE: divide by zero.
+    TEST_AND_SET(out_average_passed_ratio,
+        sum_score_full_passed == 0 ? 0 : sum_score_passed / sum_score_full_passed);
+    TEST_AND_SET(out_average_all_ratio,
+        sum_score_full_all == 0 ? 0 : sum_score_all / sum_score_full_all);
 #undef TEST_AND_SET
 }
 
