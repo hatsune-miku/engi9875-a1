@@ -3,32 +3,34 @@
  * @brief  Header file for student types in ENGI 8894/9875 assignment 1
  */
 
+#pragma once
+
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "course.h"
+
 /** A student ID is composed of an application year and a serial number. */
-struct student_id
-{
+struct student_id {
     uint16_t sid_year;
     uint32_t sid_serial;
 };
 
-struct student_grade
-{
-    struct course *course;
-    uint8_t grade;
-};
-
 /* Forward declaration of course type. */
-struct course
-{
+struct course;
+
+struct grade {
+    uint8_t grade;
+    struct course* course;
 };
 
 /** Opaque type representing a student. */
-struct student
-{
+struct student {
     struct student_id id;
-    bool grad;
+    struct grade** grades;
+    int capacity;
+    int num_courses;
+    bool graduate;
 };
 
 /**
@@ -36,12 +38,12 @@ struct student
  *
  * The caller is responsible for freeing the returned memory.
  */
-struct student *student_create(struct student_id, bool grad_student);
+struct student* student_create(struct student_id, bool grad_student);
 
 /**
  * Release a student object.
  */
-void student_free(struct student *);
+void student_free(struct student*);
 
 /**
  * Note that a student has taken a course.
@@ -49,7 +51,7 @@ void student_free(struct student *);
  * This student will now take a reference to (i.e., increment the refcount of)
  * the course that is passed in.
  */
-void student_take(struct student *s, struct course *, uint8_t grade);
+void student_take(struct student* s, struct course*, uint8_t grade);
 
 /**
  * Retrieve a student's mark in a course.
@@ -59,7 +61,7 @@ void student_take(struct student *s, struct course *, uint8_t grade);
  *
  * @returns    a grade, or -1 if the student has not taken the course
  */
-int student_grade(struct student *, struct course *);
+int student_grade(struct student*, struct course*);
 
 /**
  * Determine the average grade in the courses this student has passed.
@@ -69,7 +71,7 @@ int student_grade(struct student *, struct course *);
  *
  * @returns     the average, or 0 if no courses have been passed
  */
-double student_passed_average(const struct student *);
+double student_passed_average(const struct student*);
 
 /**
  * Determine whether or not this student is promotable.
@@ -82,4 +84,4 @@ double student_passed_average(const struct student *);
  * For undergraduate students, determine whether or not the cumulative average
  * of all courses is at least 60%.
  */
-bool student_promotable(const struct student *);
+bool student_promotable(const struct student*);
